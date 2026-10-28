@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net: Default-deny all unlisted paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened Global Security Helpers
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // User Profile Validation
+    function isValidUser(data, userId) {
+      return data.keys().hasAll(['id', 'email', 'createdAt']) &&
+             data.keys().hasOnly(['id', 'email', 'displayName', 'photoURL', 'createdAt']) &&
+             data.id == userId &&
+             data.id is string && data.id.size() <= 128 &&
+             data.email is string && data.email.size() <= 256 &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 128)) &&
+             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 1024)) &&
+             data.createdAt is string && data.createdAt.size() <= 64;
+    }
+
+    // Studio Preset Validation
+    function isValidStudioPreset(data, userId) {
+      return data.keys().hasAll(['id', 'userId', 'name', 'createdAt', 'config']) &&
+             data.keys().hasOnly(['id', 'userId', 'name', 'description', 'author', 'isCustom', 'createdAt', 'tags', 'config']) &&
+             data.userId == userId &&
+             data.id is string && isValidId(data.id) &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             (!('description' in data) || (data.description is string && data.description.size() <= 500)) &&
+             (!('author' in data) || (data.author is string && data.author.size() <= 80)) &&
+             (!('isCustom' in data) || (data.isCustom is bool)) &&
+             data.createdAt is number &&
+             (!('tags' in data) || (data.tags is list && data.tags.size() <= 10)) &&
+             data.config is map;
+    }
+
+    // Mockup Project Validation
+    function isValidMockupProject(data, userId) {
+      return data.keys().hasAll(['id', 'userId', 'title', 'productId', 'createdAt', 'updatedAt']) &&
+             data.keys().hasOnly(['id', 'userId', 'title', 'productId', 'colorwayId', 'sizeId', 'areaId', 'backgroundId', 'logoPlacement', 'lighting', 'previewImage', 'createdAt', 'updatedAt']) &&
+             data.userId == userId &&
+             data.id is string && isValidId(data.id) &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+             data.productId is string && data.productId.size() <= 64 &&
+             (!('colorwayId' in data) || (data.colorwayId is string && data.colorwayId.size() <= 64)) &&
+             (!('sizeId' in data) || (data.sizeId is string && data.sizeId.size() <= 32)) &&
+             (!('areaId' in data) || (data.areaId is string && data.areaId.size() <= 64)) &&
+             (!('backgroundId' in data) || (data.backgroundId is string && data.backgroundId.size() <= 64)) &&
+             (!('logoPlacement' in data) || (data.logoPlacement is map)) &&
+             (!('lighting' in data) || (data.lighting is map)) &&
+             (!('previewImage' in data) || (data.previewImage is string && data.previewImage.size() <= 200000)) &&
+             data.createdAt is number &&
+             data.updatedAt is number;
+    }
+
+    // User Profile Documents
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false; // Blanket user listing forbidden for PII privacy
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUser(incoming(), userId);
+      allow update: if isOwner(userId) && isValidId(userId) && isValidUser(incoming(), userId) && incoming().id == existing().id;
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      // User Presets Subcollection
+      match /presets/{presetId} {
+        allow get: if isOwner(userId) && isValidId(presetId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(presetId) && isValidStudioPreset(incoming(), userId);
+        allow update: if isOwner(userId) && isValidId(presetId) && isValidStudioPreset(incoming(), userId) && incoming().id == existing().id && incoming().userId == existing().userId;
+        allow delete: if isOwner(userId) && isValidId(presetId);
+      }
+
+      // User Mockup Projects Subcollection
+      match /projects/{projectId} {
+        allow get: if isOwner(userId) && isValidId(projectId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(projectId) && isValidMockupProject(incoming(), userId);
+        allow update: if isOwner(userId) && isValidId(projectId) && isValidMockupProject(incoming(), userId) && incoming().id == existing().id && incoming().userId == existing().userId;
+        allow delete: if isOwner(userId) && isValidId(projectId);
+      }
+    }
+  }
+}

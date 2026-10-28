@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #0f172a;
+    background-color: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Texture & Blend Utilities */
+.embroidery-texture {
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.35)) drop-shadow(0 2px 3px rgba(0,0,0,0.2));
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 2px, transparent 2px, transparent 4px);
+}
+
+.screenprint-texture {
+  filter: contrast(110%) brightness(98%);
+}
+
+.washed-texture {
+  filter: contrast(95%) brightness(102%) opacity(90%);
+  mask-image: radial-gradient(circle, black 80%, rgba(0,0,0,0.6) 100%);
+}
+
+.foil-gold {
+  background: linear-gradient(135deg, #f7d070 0%, #e2a829 40%, #ffebb3 60%, #bd881a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 2px rgba(189,136,26,0.4));
+}
+
+.foil-silver {
+  background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 40%, #ffffff 60%, #64748b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 2px rgba(100,116,139,0.3));
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Print spec sheet formatting */
+@media print {
+  body {
+    background: white !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}

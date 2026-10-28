@@ -1,0 +1,166 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Authenticated user profile in Atelier Merch Studio",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Firebase Auth UID of the user",
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user",
+          "maxLength": 256
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the user",
+          "maxLength": 128
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "Avatar photo URL",
+          "maxLength": 1024
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Account registration timestamp",
+          "maxLength": 64
+        }
+      },
+      "required": ["id", "email", "createdAt"]
+    },
+    "StudioPreset": {
+      "title": "StudioPreset",
+      "description": "User custom saved studio preset configuration",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the preset",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner UID who created the preset",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "Display title of the preset",
+          "maxLength": 100,
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "description": "User description or notes",
+          "maxLength": 500
+        },
+        "author": {
+          "type": "string",
+          "description": "Author name or tag",
+          "maxLength": 80
+        },
+        "isCustom": {
+          "type": "boolean",
+          "description": "Flag marking custom user preset"
+        },
+        "createdAt": {
+          "type": "number",
+          "description": "Epoch timestamp in milliseconds"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tag labels (up to 10 tags)"
+        },
+        "config": {
+          "type": "object",
+          "description": "Complete product, placement, background and lighting configuration"
+        }
+      },
+      "required": ["id", "userId", "name", "createdAt", "config"]
+    },
+    "MockupProject": {
+      "title": "MockupProject",
+      "description": "Saved merchandise design and mockup project",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique project identifier",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner UID of the project",
+          "maxLength": 128
+        },
+        "title": {
+          "type": "string",
+          "description": "Name of the project",
+          "maxLength": 120,
+          "minLength": 1
+        },
+        "productId": {
+          "type": "string",
+          "description": "ID of the blank garment/item",
+          "maxLength": 64
+        },
+        "colorwayId": {
+          "type": "string",
+          "description": "ID of the selected colorway",
+          "maxLength": 64
+        },
+        "sizeId": {
+          "type": "string",
+          "description": "Selected size label ID",
+          "maxLength": 32
+        },
+        "areaId": {
+          "type": "string",
+          "description": "Print area placement zone ID",
+          "maxLength": 64
+        },
+        "backgroundId": {
+          "type": "string",
+          "description": "Background scene ID",
+          "maxLength": 64
+        },
+        "logoPlacement": {
+          "type": "object",
+          "description": "Logo coordinate offsets, scale and print finish"
+        },
+        "lighting": {
+          "type": "object",
+          "description": "Virtual scene lighting and mood configuration"
+        },
+        "createdAt": {
+          "type": "number",
+          "description": "Epoch creation timestamp"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Epoch last modified timestamp"
+        }
+      },
+      "required": ["id", "userId", "title", "productId", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles stored by Auth UID"
+    },
+    "/users/{userId}/presets/{presetId}": {
+      "schema": "StudioPreset",
+      "description": "User-saved custom merch studio templates"
+    },
+    "/users/{userId}/projects/{projectId}": {
+      "schema": "MockupProject",
+      "description": "User-saved merch mockup projects"
+    }
+  }
+}

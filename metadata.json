@@ -1,0 +1,6 @@
+{
+  "name": "Atelier Merch — AI Mockup & Print-Ready Studio",
+  "description": "On-demand merchandise mockup studio with AI scene placement, realistic fabric textures, and print-ready export files.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
