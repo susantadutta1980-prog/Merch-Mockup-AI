@@ -32,7 +32,6 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
   const [customPrompt, setCustomPrompt] = useState('');
   const [isGeneratingBg, setIsGeneratingBg] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
-  const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
   // Filtered background list
   const filteredList =
@@ -96,20 +95,8 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
       onAddCustomBackground(newBg);
       onSelectBackground(newBg);
       setCustomPrompt('');
-
-      if (data.notice) {
-        setNoticeMessage(data.notice);
-        setTimeout(() => setNoticeMessage(null), 8000);
-      }
     } catch (err: any) {
-      const msg = err.message || '';
-      if (msg.includes('429') || msg.includes('quota') || msg.includes('Quota')) {
-        setGenerateError(
-          'AI Image Generation quota limit reached on Free Tier. Select from our built-in scene library or upload any photo.'
-        );
-      } else {
-        setGenerateError(msg || 'Error creating custom background');
-      }
+      setGenerateError(err.message || 'Error creating custom background');
     } finally {
       setIsGeneratingBg(false);
     }
@@ -323,21 +310,6 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
             </button>
           ))}
         </div>
-
-        {noticeMessage && (
-          <div className="text-xs text-amber-800 bg-amber-50 border border-amber-200 p-2.5 rounded-lg flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-              <span>{noticeMessage}</span>
-            </span>
-            <button
-              onClick={() => setNoticeMessage(null)}
-              className="text-amber-600 hover:text-amber-900 ml-2 font-bold cursor-pointer"
-            >
-              ×
-            </button>
-          </div>
-        )}
 
         {generateError && (
           <div className="text-xs text-rose-700 bg-rose-50 border border-rose-200 p-2 rounded">

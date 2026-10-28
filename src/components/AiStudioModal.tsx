@@ -87,14 +87,7 @@ export const AiStudioModal: React.FC<AiStudioModalProps> = ({
       setCurrentResult(newResult);
       setHistory((prev) => [newResult, ...prev]);
     } catch (err: any) {
-      const msg = err.message || '';
-      if (msg.includes('429') || msg.includes('quota') || msg.includes('Quota')) {
-        setErrorMessage(
-          'AI image generation quota is reached on Free Tier. Select from built-in scenes or upload any image.'
-        );
-      } else {
-        setErrorMessage(msg || 'An unexpected error occurred during generation.');
-      }
+      setErrorMessage(err.message || 'An unexpected error occurred during generation.');
     } finally {
       setIsLoading(false);
     }

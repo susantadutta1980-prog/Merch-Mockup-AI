@@ -22,8 +22,7 @@ import { BackgroundSelector } from './components/BackgroundSelector';
 import { AiStudioModal } from './components/AiStudioModal';
 import { PrintReadyModal } from './components/PrintReadyModal';
 import { PresetsModal } from './components/PresetsModal';
-import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
-import { Sparkles, Download, Undo2, Redo2, Bookmark, Keyboard } from 'lucide-react';
+import { Sparkles, Download, Undo2, Redo2, Bookmark } from 'lucide-react';
 import { generateCompositeMockupImage } from './utils/canvasExport';
 import { subscribeToAuth, loginWithGoogle, logoutUser } from './lib/firebase';
 
@@ -88,121 +87,7 @@ export default function App() {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isPresetsModalOpen, setIsPresetsModalOpen] = useState(false);
-  const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
   const [isAiBlending, setIsAiBlending] = useState(false);
-  const [toastMessage, setToastMessage] = useState<{ text: string; type?: 'info' | 'success' | 'warn' } | null>(null);
-
-  useEffect(() => {
-    if (!toastMessage) return;
-    const timer = setTimeout(() => setToastMessage(null), 4500);
-    return () => clearTimeout(timer);
-  }, [toastMessage]);
-
-  // Global Keyboard Shortcuts (Undo, Redo, Views 1-4, Presets P, Shortcuts ?)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const isInput =
-        target &&
-        (target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.tagName === 'SELECT' ||
-          target.isContentEditable);
-
-      // Handle Escape to close active modals
-      if (e.key === 'Escape') {
-        if (isShortcutsModalOpen) {
-          setIsShortcutsModalOpen(false);
-          return;
-        }
-        if (isPresetsModalOpen) {
-          setIsPresetsModalOpen(false);
-          return;
-        }
-        if (isExportModalOpen) {
-          setIsExportModalOpen(false);
-          return;
-        }
-        if (isAiModalOpen) {
-          setIsAiModalOpen(false);
-          return;
-        }
-      }
-
-      // If user is focused on a text input, don't hijack keystrokes
-      if (isInput) return;
-
-      // Undo: Meta+Z or Ctrl+Z (without shift)
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        undo();
-        return;
-      }
-
-      // Redo: Meta+Shift+Z or Ctrl+Shift+Z or Meta+Y or Ctrl+Y
-      if (
-        ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'z') ||
-        ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'y')
-      ) {
-        e.preventDefault();
-        redo();
-        return;
-      }
-
-      // Quick tab switching: 1, 2, 3, 4
-      if (e.key === '1') {
-        e.preventDefault();
-        setActiveTab('catalog');
-        return;
-      }
-      if (e.key === '2') {
-        e.preventDefault();
-        setActiveTab('placement');
-        return;
-      }
-      if (e.key === '3') {
-        e.preventDefault();
-        setActiveTab('ai-lab');
-        return;
-      }
-      if (e.key === '4') {
-        e.preventDefault();
-        setActiveTab('techpack');
-        return;
-      }
-
-      // Toggle shortcuts help overlay: '?' or Shift+'/'
-      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
-        e.preventDefault();
-        setIsShortcutsModalOpen((prev) => !prev);
-        return;
-      }
-
-      // Open presets modal: 'p' or 'P'
-      if (!e.metaKey && !e.ctrlKey && e.key.toLowerCase() === 'p') {
-        e.preventDefault();
-        setIsPresetsModalOpen(true);
-        return;
-      }
-
-      // Open export modal: 'e' or 'E'
-      if (!e.metaKey && !e.ctrlKey && e.key.toLowerCase() === 'e') {
-        e.preventDefault();
-        setIsExportModalOpen(true);
-        return;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [
-    undo,
-    redo,
-    isShortcutsModalOpen,
-    isPresetsModalOpen,
-    isExportModalOpen,
-    isAiModalOpen,
-  ]);
 
   // Firebase Authentication State
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
@@ -336,10 +221,7 @@ export default function App() {
   // Trigger AI Smart Blend between product mockup & active background
   const handleTriggerAiSmartBlend = async () => {
     if (!selectedBackground.image) {
-      setToastMessage({
-        text: 'Please select a background scene first to use AI Smart Blend.',
-        type: 'warn',
-      });
+      alert('Please select a background scene first to use AI Smart Blend.');
       return;
     }
     setIsAiBlending(true);
@@ -377,15 +259,9 @@ export default function App() {
         ...prev,
         image: data.imageUrl,
       }));
-      setToastMessage({
-        text: data.notice || 'AI Lighting and Shadow blend completed successfully!',
-        type: 'success',
-      });
+      alert('AI Lighting and Shadow blend completed successfully!');
     } catch (err: any) {
-      setToastMessage({
-        text: 'AI Blend status: ' + (err.message || 'Scene integrated'),
-        type: 'info',
-      });
+      alert('AI Blend notice: ' + err.message);
     } finally {
       setIsAiBlending(false);
     }
@@ -405,7 +281,6 @@ export default function App() {
         onSelectTab={setActiveTab}
         onOpenExportModal={() => setIsExportModalOpen(true)}
         onOpenPresetsModal={() => setIsPresetsModalOpen(true)}
-        onOpenShortcutsModal={() => setIsShortcutsModalOpen(true)}
         user={currentUser}
         onLogin={handleLogin}
         onLogout={handleLogout}
@@ -440,7 +315,6 @@ export default function App() {
                   >
                     <Undo2 className="w-3.5 h-3.5" />
                     <span>Undo</span>
-                    <kbd className="hidden lg:inline-block text-[9px] font-mono px-1 py-0.2 bg-slate-100 rounded text-slate-500 border border-slate-200">⌘Z</kbd>
                     {pastCount > 0 && (
                       <span className="text-[10px] text-slate-400 font-mono">({pastCount})</span>
                     )}
@@ -455,7 +329,6 @@ export default function App() {
                   >
                     <Redo2 className="w-3.5 h-3.5" />
                     <span>Redo</span>
-                    <kbd className="hidden lg:inline-block text-[9px] font-mono px-1 py-0.2 bg-slate-100 rounded text-slate-500 border border-slate-200">⌘Y</kbd>
                     {futureCount > 0 && (
                       <span className="text-[10px] text-slate-400 font-mono">({futureCount})</span>
                     )}
@@ -464,21 +337,11 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setIsPresetsModalOpen(true)}
-                    title="Browse shared community templates or save custom preset (Hotkey: P)"
+                    title="Browse shared community templates or save custom preset"
                     className="ml-2 px-2.5 py-1 text-xs font-semibold rounded-md border border-indigo-200 bg-indigo-50/80 text-indigo-800 hover:bg-indigo-100 transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
                   >
                     <Bookmark className="w-3.5 h-3.5 text-indigo-600" />
                     <span>Presets & Templates</span>
-                    <kbd className="hidden lg:inline-block text-[9px] font-mono px-1 py-0.2 bg-indigo-100/70 rounded text-indigo-700 border border-indigo-200">P</kbd>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsShortcutsModalOpen(true)}
-                    title="View keyboard shortcuts overlay (?)"
-                    className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-md border border-slate-200 transition-colors cursor-pointer"
-                  >
-                    <Keyboard className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -897,42 +760,6 @@ export default function App() {
         onApplyPreset={handleApplyPreset}
         user={currentUser}
       />
-
-      {/* Floating Keyboard Shortcuts Pill / Help Trigger */}
-      <button
-        type="button"
-        onClick={() => setIsShortcutsModalOpen(true)}
-        title="View Keyboard Shortcuts (?)"
-        className="fixed bottom-5 right-5 z-30 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 text-white text-xs font-medium shadow-lg hover:bg-slate-900 hover:scale-105 active:scale-95 transition-all backdrop-blur-xs cursor-pointer border border-slate-700/60"
-      >
-        <Keyboard className="w-3.5 h-3.5 text-indigo-300" />
-        <span>Shortcuts</span>
-        <kbd className="px-1.5 py-0.2 text-[10px] font-mono rounded bg-slate-800 text-slate-300 border border-slate-700">?</kbd>
-      </button>
-
-      {/* Keyboard Shortcuts Help Overlay */}
-      <KeyboardShortcutsModal
-        isOpen={isShortcutsModalOpen}
-        onClose={() => setIsShortcutsModalOpen(false)}
-        onSwitchTab={setActiveTab}
-        onUndo={undo}
-        onRedo={redo}
-        canUndo={canUndo}
-        canRedo={canRedo}
-      />
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 bg-slate-900/95 text-white rounded-xl shadow-2xl text-xs font-medium border border-slate-700/80 animate-in slide-in-from-top-2 duration-200 max-w-md backdrop-blur-xs">
-          <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
-          <span className="flex-1 leading-snug">{toastMessage.text}</span>
-          <button
-            onClick={() => setToastMessage(null)}
-            className="p-1 text-slate-400 hover:text-white cursor-pointer ml-1"
-          >
-            ×
-          </button>
-        </div>
-      )}
     </div>
   );
 }

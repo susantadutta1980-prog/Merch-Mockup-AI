@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bookmark, LogIn, LogOut, Cloud, Keyboard } from 'lucide-react';
+import { Bookmark, LogIn, LogOut, Cloud } from 'lucide-react';
 import type { User as FirebaseUser } from 'firebase/auth';
 
 interface HeaderProps {
@@ -7,7 +7,6 @@ interface HeaderProps {
   onSelectTab: (tab: 'catalog' | 'placement' | 'ai-lab' | 'techpack') => void;
   onOpenExportModal: () => void;
   onOpenPresetsModal?: () => void;
-  onOpenShortcutsModal?: () => void;
   user: FirebaseUser | null;
   onLogin: () => void;
   onLogout: () => void;
@@ -19,7 +18,6 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectTab,
   onOpenExportModal,
   onOpenPresetsModal,
-  onOpenShortcutsModal,
   user,
   onLogin,
   onLogout,
@@ -39,89 +37,44 @@ export const Header: React.FC<HeaderProps> = ({
       <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600">
         <button
           onClick={() => onSelectTab('catalog')}
-          title="Switch to Product Catalog (Hotkey: 1)"
-          className={`hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 cursor-pointer flex items-center gap-1.5 ${
+          className={`hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'catalog' ? 'text-slate-900 underline underline-offset-8 decoration-2 font-semibold' : ''
           }`}
         >
-          <span>Product Catalog</span>
-          <span className="text-[10px] text-slate-400 font-mono font-normal">1</span>
+          Product Catalog
         </button>
         <button
           onClick={() => onSelectTab('placement')}
-          title="Switch to Placement Inspector (Hotkey: 2)"
-          className={`hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 cursor-pointer flex items-center gap-1.5 ${
+          className={`hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'placement' ? 'text-slate-900 underline underline-offset-8 decoration-2 font-semibold' : ''
           }`}
         >
-          <span>Placement Inspector</span>
-          <span className="text-[10px] text-slate-400 font-mono font-normal">2</span>
+          Placement Inspector
         </button>
         <button
           onClick={() => onSelectTab('ai-lab')}
-          title="Switch to AI Scene & Edit Lab (Hotkey: 3)"
-          className={`hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 cursor-pointer flex items-center gap-1.5 ${
+          className={`hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'ai-lab' ? 'text-slate-900 underline underline-offset-8 decoration-2 font-semibold' : ''
           }`}
         >
-          <span>AI Scene & Edit Lab</span>
-          <span className="text-[10px] text-slate-400 font-mono font-normal">3</span>
+          AI Scene & Edit Lab
         </button>
         <button
           onClick={() => onSelectTab('techpack')}
-          title="Switch to Print Spec Sheet (Hotkey: 4)"
-          className={`hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 cursor-pointer flex items-center gap-1.5 ${
+          className={`hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'techpack' ? 'text-slate-900 underline underline-offset-8 decoration-2 font-semibold' : ''
           }`}
         >
-          <span>Print Spec Sheet</span>
-          <span className="text-[10px] text-slate-400 font-mono font-normal">4</span>
+          Print Spec Sheet
         </button>
       </nav>
 
-      {/* Zone 3: Actions - Shortcuts, Presets, Cloud Auth & Primary Export */}
+      {/* Zone 3: Actions - Presets, Cloud Auth & Primary Export */}
       <div className="flex items-center gap-2.5 shrink-0">
-        {onOpenShortcutsModal && (
-          <div className="relative group">
-            <button
-              onClick={onOpenShortcutsModal}
-              title="Keyboard Shortcuts (?)"
-              aria-label="Keyboard Shortcuts"
-              className="p-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 border border-slate-200 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer flex items-center justify-center active:scale-95"
-            >
-              <Keyboard className="w-4 h-4 text-slate-600 group-hover:text-slate-900" />
-            </button>
-            {/* Tooltip overlay on hover */}
-            <div className="absolute right-0 top-full mt-2 hidden group-hover:flex flex-col bg-slate-900 text-white text-xs rounded-xl py-2 px-3 shadow-xl whitespace-nowrap z-50 pointer-events-none min-w-[200px]">
-              <div className="flex items-center justify-between gap-3 font-semibold text-[11px] pb-1 border-b border-slate-700/60 mb-1">
-                <span>Keyboard Shortcuts</span>
-                <kbd className="px-1.5 py-0.5 text-[10px] bg-slate-800 rounded border border-slate-700 font-mono text-slate-200">?</kbd>
-              </div>
-              <div className="space-y-1 text-[11px] text-slate-300">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-slate-400">Undo / Redo</span>
-                  <span className="font-mono text-slate-200">Ctrl+Z / Ctrl+Y</span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-slate-400">Switch Views</span>
-                  <span className="font-mono text-slate-200">1, 2, 3, 4</span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-slate-400">Presets & Templates</span>
-                  <span className="font-mono text-slate-200">P</span>
-                </div>
-              </div>
-              <div className="pt-1.5 mt-1 border-t border-slate-800 text-[10px] text-indigo-300 font-medium text-center">
-                Click to view full cheat sheet
-              </div>
-            </div>
-          </div>
-        )}
-
         {onOpenPresetsModal && (
           <button
             onClick={onOpenPresetsModal}
-            title="Browse shared community presets or save your own template (Hotkey: P)"
+            title="Browse shared community presets or save your own template"
             className="px-3 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer flex items-center gap-1.5 active:scale-95"
           >
             <Bookmark className="w-3.5 h-3.5 text-indigo-600" />
